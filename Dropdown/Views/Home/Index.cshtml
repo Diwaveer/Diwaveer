@@ -1,0 +1,43 @@
+﻿@model List<Dropdown.Models.State> // Replace with your namespace
+
+<h2>Cascading Dropdown Lists</h2>
+
+<select id="stateSelect">
+    @foreach (var state in Model)
+    {
+        <option value="@state.StateId">@state.StateName</option>
+    }
+</select>
+<select id="districtSelect" disabled>
+    <option value="">Select District</option>
+</select>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#stateSelect").change(function () {
+                var stateId = $(this).val();
+                if (stateId) {
+                    $.ajax({
+                        url: '@Url.Action("GetDistricts", "Home")',  // Generate URL for GetDistricts action
+                        data: { stateId: stateId },
+                        dataType: "json",
+                        success: function (data) {
+                            $("#districtSelect").empty().prop("disabled", false);
+                            $("#districtSelect").append('<option value="">Select District</option>');
+                            $.each(data, function (i, item) {
+                                $("#districtSelect").append($('<option>').val(item.districtId).text(item.districtName));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching districts:", error);
+                        }
+                    });
+                } else {
+                    $("#districtSelect").empty().prop("disabled", true);
+                }
+            });
+        });
+    </script>
+}
